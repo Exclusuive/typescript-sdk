@@ -3,7 +3,13 @@ import react from "@vitejs/plugin-react";
 import dts from "vite-plugin-dts";
 
 export default defineConfig({
-  plugins: [react(), dts()],
+  plugins: [
+    react(),
+    dts({
+      insertTypesEntry: true, // dist/index.d.ts 자동 생성
+      outputDir: "dist", // 타입을 dist/ 폴더에 배치
+    }),
+  ],
   build: {
     lib: {
       entry: "src/index.ts", // 🔥 빌드 진입점
