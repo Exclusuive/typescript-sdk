@@ -1,37 +1,49 @@
 import React from "react";
 
+interface ImageData {
+  layer: string;
+  url: string;
+}
+
 interface ImageOverlayProps {
-  images: string[];
-  positions?: { x: number; y: number }[];
-  sizes?: { width: number; height: number }[];
+  images: ImageData[]; // { layer: string, url: string } 형태의 배열
+  layerInfo: string[]; // 렌더링 순서가 들어있는 배열 (ex: ["background", "character", "effect"])
+  size: { width: number; height: number };
 }
 
 const ImageOverlay: React.FC<ImageOverlayProps> = ({
   images,
-  positions = [],
-  sizes = [],
+  layerInfo,
+  size,
 }) => {
-  return (
-    <div style={{ position: "relative", width: "300px", height: "300px" }}>
-      {images.map((src, index) => {
-        const position = positions[index] || { x: 0, y: 0 };
-        const size = sizes[index] || { width: 100, height: 100 };
+  // layerInfo 순서에 맞게 images 배열 정렬
+  const sortedImages = layerInfo
+    .map((layer) => images.find((img) => img.layer === layer)) // layerInfo 순서대로 images에서 찾기
+    .filter(Boolean) as ImageData[]; // undefined 값 제거
 
-        return (
-          <img
-            key={index}
-            src={src}
-            alt={`overlay-${index}`}
-            style={{
-              position: "absolute",
-              left: position.x,
-              top: position.y,
-              width: size.width,
-              height: size.height,
-            }}
-          />
-        );
-      })}
+  return (
+    <div
+      style={{
+        position: "relative",
+        width: `${size.width}px`,
+        height: `${size.height}px`,
+        overflow: "hidden",
+      }}
+    >
+      {sortedImages.map((image, index) => (
+        <img
+          key={index}
+          src={image.url}
+          alt={`layer-${image.layer}`}
+          style={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            width: `${size.width}px`,
+            height: `${size.height}px`,
+          }}
+        />
+      ))}
     </div>
   );
 };
