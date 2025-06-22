@@ -10,7 +10,47 @@ export const MODULE = {
 // ================== Collection Module
 // =====================================
 const COLLECTION_MODULE_FUNCTION_NAMES = {
-  CREATE_COLLECTION: "create_collection",
+  // Entry
+  create_collection: "create_collection",
+  create_market: "create_market",
+  // Mint
+  mint_character: "mint_character",
+  mint_item: "mint_item",
+  mint_ticket: "mint_ticket",
+  // New
+  new: "new",
+  new_market: "new_market",
+  new_character: "new_character",
+  new_item: "new_item",
+  new_attribute_scroll: "new_attribute_scroll",
+  new_ticket: "new_ticket",
+  // Register Type
+  register_layer_type: "register_layer_type",
+  register_item_type: "register_item_type",
+  register_attribute_type: "register_attribute_type",
+  register_ticket_type: "register_ticket_type",
+  register_config_to_type: "register_config_to_type",
+  // Update Type
+  update_layer_order: "update_layer_order",
+  update_config_to_type: "update_config_to_type",
+  // Market
+  register_listing_to_market: "register_listing_to_market",
+  register_purchase_condition_to_listing:
+    "register_purchase_condition_to_listing",
+  stock_product_to_listing: "stock_product_to_listing",
+  // Item
+  equip_item_to_character: "equip_item_to_character",
+  store_item_to_item_bag: "store_item_to_item_bag",
+  retrieve_item_from_item_bag: "retrieve_item_from_item_bag",
+  attach_attribute_to_item: "attach_attribute_to_item",
+  // Ticket
+  store_ticket_to_ticket_bag: "store_ticket_to_ticket_bag",
+  retrieve_ticket_from_ticket_bag: "retrieve_ticket_from_ticket_bag",
+  // Purchase
+  new_purchase_request: "new_purchase_request",
+  consume_ticket: "consume_ticket",
+  add_balance_to_market: "add_balance_to_market",
+  confirm_purchase_request: "confirm_purchase_request",
 } as const;
 
 export const COLLECTION_MODULE_FUNCTIONS = Object.fromEntries(
