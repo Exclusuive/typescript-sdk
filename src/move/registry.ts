@@ -61,7 +61,41 @@ export const COLLECTION_MODULE_FUNCTIONS = Object.fromEntries(
 ) as Record<keyof typeof COLLECTION_MODULE_FUNCTION_NAMES, string>;
 
 const COLLECTION_MODULE_STRUCT_NAMES = {
-  COLLECTION: "Collection",
+  // Collection
+  Collection: "Collection",
+  CollectionCap: "CollectionCap",
+  // Market
+  Market: "Market",
+  MarketCap: "MarketCap",
+  Listing: "Listing",
+  PurchaseCondition: "PurchaseCondition",
+  PurchaseRequest: "PurchaseRequest",
+  // Type
+  CharacterType: "CharacterType",
+  LayerType: "LayerType",
+  ItemType: "ItemType",
+  AttributeType: "AttributeType",
+  TicketType: "TicketType",
+  TypeConfig: "TypeConfig",
+  // Objects
+  Membership: "Membership",
+  ItemSocket: "ItemSocket",
+  Item: "Item",
+  AttributeScroll: "AttributeScroll",
+  Attribute: "Attribute",
+  Ticket: "Ticket",
+  // Keys
+  TypeKey: "TypeKey",
+  ItemBagKey: "ItemBagKey",
+  TicketBagKey: "TicketBagKey",
+  ProductKey: "ProductKey",
+  TypeConfigKey: "TypeConfigKey",
+  // Event
+  CollectionCreated: "CollectionCreated",
+  MarketCreated: "MarketCreated",
+  MembershipCreated: "MembershipCreated",
+  ItemCreated: "ItemCreated",
+  TicketCreated: "TicketCreated",
 } as const;
 
 export const COLLECTION_MODULE_STRUCTS = Object.fromEntries(
