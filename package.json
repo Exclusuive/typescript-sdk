@@ -36,9 +36,7 @@
     "singleQuote": true,
     "trailingComma": "es5"
   },
-  "name": "exclusuive-lib",
   "author": "poqopo",
-  "module": "dist/exclusuive-lib.esm.js",
   "size-limit": [
     {
       "path": "dist/exclusuive-lib.cjs.production.min.js",

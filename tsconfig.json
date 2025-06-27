@@ -14,11 +14,11 @@
     // stricter type-checking for stronger correctness. Recommended by TS
     "strict": true,
     "esModuleInterop": true,
+    "moduleResolution": "node",
     "baseUrl": "./",
     "paths": {
       "@/*": ["src/*"]
     }
   },
-  "include": ["src"],
   "exclude": ["node_modules", "dist"]
 }
