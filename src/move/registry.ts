@@ -66,7 +66,7 @@ const COLLECTION_MODULE_FUNCTION_NAMES = {
   mint_item: 'mint_item',
   mint_ticket: 'mint_ticket',
   // New
-  new: 'new',
+  new_collection: 'new',
   new_market: 'new_market',
   new_membership: 'new_membership',
   new_item: 'new_item',
