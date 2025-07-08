@@ -1,13 +1,12 @@
-import { useCurrentAccount, ConnectButton } from "@mysten/dapp-kit";
-import { useGetCollectionsByOwnerAddress } from "exclusuive-sdk";
-import ReactJson from "react-json-view";
+import { useCurrentAccount, ConnectButton } from '@mysten/dapp-kit';
+import { useGetAllCollections } from 'exclusuive-typescript-sdk';
 
 function MainPage() {
   const account = useCurrentAccount();
 
-  const { collections, isPending, error } = useGetCollectionsByOwnerAddress({
-    owner: account ? account.address : "",
-  });
+  const { collections, isPending, error } = useGetAllCollections();
+
+  console.log(collections);
 
   if (!account) {
     return (
@@ -38,7 +37,6 @@ function MainPage() {
   return (
     <div className="flex">
       <div>Testsetsetse</div>
-      <ReactJson src={collections} collapsed={false} theme="monokai" />
     </div>
   );
 }

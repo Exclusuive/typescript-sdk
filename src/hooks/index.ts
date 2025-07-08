@@ -1,1 +1,2 @@
-export * from "./collection/useGetCollectionsByOwnerAddress";
+export * from './collection/useGetAllCollections';
+export * from './collection/useGetCollectionsByOwnerAddress';
