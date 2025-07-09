@@ -74,8 +74,9 @@ export interface FormattedCollection {
   configs?: FormattedTypeConfig;
   item_types?: FormattedItemType[];
   layer_types?: string[];
-  attribute_types?: FormattedAttributeType[];
-  ticket_types?: FormattedTicketType[];
+  attribute_types?: string[];
+  ticket_types?: string[];
+  markets?: string[];
 }
 
 export interface FormattedTypeConfig {
@@ -88,15 +89,7 @@ export interface FormattedItemType {
   img_url: string;
   layer_type: string;
   description?: string;
-  attrivutes?: Record<string, string>;
-}
-
-export interface FormattedAttributeType {
-  type: string;
-  fields: {
-    collection_id: string;
-    type_name: string;
-  };
+  attributes?: Record<string, string>;
 }
 
 export interface FormattedTicketType {

@@ -1,9 +1,9 @@
-import type { CollectionData } from "@/types/collection";
-import { useEffect, useState } from "react";
-import { collectionFetcher } from "@/api/collection";
+import type { FormattedCollection } from '@/types/collection';
+import { useEffect, useState } from 'react';
+import { collectionFetcher } from '@/api/collection';
 
 export function useGetCollectionsByOwnerAddress({ owner }: { owner: string }) {
-  const [collections, setCollections] = useState<CollectionData[]>([]);
+  const [collections, setCollections] = useState<FormattedCollection[]>([]);
   const [isPending, setIsPending] = useState<boolean>(true);
   const [error, setError] = useState(null);
   const [refetchSwitch, setRefetchSwitch] = useState(false);

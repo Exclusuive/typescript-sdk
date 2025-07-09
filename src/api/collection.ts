@@ -101,6 +101,8 @@ async function getAllCollections(): Promise<FormattedCollection[]> {
         filteredDynamicFieldDatas
       );
 
+      console.log(formattedCollection);
+
       return {
         id,
         name: collectionObjectData.content.fields.membership_type.fields
@@ -113,6 +115,8 @@ async function getAllCollections(): Promise<FormattedCollection[]> {
               return item.fields.type_name;
             }
           ),
+        attribute_types: formattedCollection.attribute_types,
+        ticket_types: formattedCollection.ticket_types,
       } as FormattedCollection;
     });
 
@@ -131,7 +135,7 @@ async function getCollectionsByIds({
   ids,
 }: {
   ids: string[];
-}): Promise<CollectionData[]> {
+}): Promise<FormattedCollection[]> {
   return [];
 }
 async function getCollectionById({
@@ -146,7 +150,7 @@ async function getCollectionsByOwnerAddress({
   owner,
 }: {
   owner: string;
-}): Promise<CollectionData[]> {
+}): Promise<FormattedCollection[]> {
   try {
     const data = await client.getOwnedObjects({
       owner,
@@ -156,6 +160,7 @@ async function getCollectionsByOwnerAddress({
         showContent: true,
       },
     });
+
     const capIds = data.data.flatMap((item) => {
       const content = item.data?.content;
       if (
@@ -202,7 +207,6 @@ async function getCollectionsByOwnerAddress({
           client
             .getDynamicFields({ parentId: id }) // line break
             .then((data) => {
-              console.log('Dynamic field data:', data);
               const dynamicFieldObjectIds = data.data.map((d) => {
                 return d.objectId;
               });
@@ -238,12 +242,25 @@ async function getCollectionsByOwnerAddress({
         return;
       }
 
+      const formattedCollection = formatDynamicFields(
+        filteredDynamicFieldDatas
+      );
+
       return {
         id,
         cap: capIds[i],
-        objectData: collectionObjectData,
-        dynamicFieldData: filteredDynamicFieldDatas,
-      } as CollectionData;
+        name: collectionObjectData.content.fields.membership_type.fields
+          .type_name,
+        configs: formattedCollection.configs,
+        layer_types:
+          collectionObjectData.content.fields.layer_order.fields.contents.map(
+            (item) => {
+              return item.fields.type_name;
+            }
+          ),
+        attribute_types: formattedCollection.attribute_types,
+        ticket_types: formattedCollection.ticket_types,
+      } as FormattedCollection;
     });
 
     const collectionsWithoutNull = collections.flatMap((c) => {

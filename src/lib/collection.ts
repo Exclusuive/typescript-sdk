@@ -91,8 +91,12 @@ const formatTypeConfig = (item: any): FormattedTypeConfig => {
   };
 };
 
-const formatLayerType = (item: any): string => {
-  return item.content.fields.value.fields.type_name;
+const formatAttributeType = (item: any): string => {
+  return item.content.fields.name.fields.type_name;
+};
+
+const formatTicketType = (item: any): string => {
+  return item.content.fields.name.fields.type_name;
 };
 
 export const formatDynamicFields = (data: SuiDynamicFieldObjectData[]) => {
@@ -104,44 +108,42 @@ export const formatDynamicFields = (data: SuiDynamicFieldObjectData[]) => {
       return { ...acc, ...formatTypeConfig(item) };
     }, {} as FormattedTypeConfig);
 
+  const attributes = data
+    .filter((item) => {
+      return item.content.type.includes('AttributeType');
+    })
+    .map((item) => {
+      return formatAttributeType(item);
+    });
+
+  const ticketTypes = data
+    .filter((item) => {
+      return item.content.type.includes('TicketType');
+    })
+    .map((item) => {
+      return formatTicketType(item);
+    });
+
   return {
     configs: configs,
+    attribute_types: attributes,
+    ticket_types: ticketTypes,
   };
+};
 
-  // return {
-  //   id: data.id,
-  //   cap: data.cap,
-  //   name: data.objectData.content.fields.membership_type.fields.type_name,
-  //   configs: data.dynamicFieldData.filter((item) => item.content.type.includes('TypeConfig')).map((item : LayerType) => {
-  //     return {
-  //       [item.content.fields.name.fields.type_name]: item.content.fields.value.fields.content,
-  //     };
-  //   }),
-  //   item_types: data.dynamicFieldData.filter((item) => item.content.type.includes('ItemType')).map((item) => {
-  //     return {
-  //       type: item.content.fields.name.fields.type_name,
-  //       collection_id: item.content.fields.value.fields.collection_id,
-  //       img_url: item.content.fields.value.fields.img_url,
-  //       layer_type: item.content.fields.value.fields.layer_type,
-  //       description: item.content.fields.value.fields.description,
-  //       attrivutes: item.content.fields.value.fields.attrivutes,
-  //     };
-  //   }),
-  //   layer_types: data.dynamicFieldData.filter((item) => item.content.type.includes('LayerType')).map((item) => {
-  //     return {
-  //       type: item.content.fields.name.fields.type_name,
-  //       order: item.content.fields.value.fields.order,
-  //     };
-  //   }),
-  //   attribute_types: data.dynamicFieldData.filter((item) => item.content.type.includes('AttributeType')).map((item) => {
-  //     return {
-  //       type: item.content.fields.name.fields.type_name,
-  //     };
-  //   }),
-  //   ticket_types: data.dynamicFieldData.filter((item) => item.content.type.includes('TicketType')).map((item) => {
-  //     return {
-  //       type: item.content.fields.name.fields.type_name,
-  //     };
-  //   }),
-  // };
+export const parseCreateCollectionResult = (data: any) => {
+  const collection = data.find(
+    (item: any) =>
+      item.objectType.includes('::collection::Collection') &&
+      !item.objectType.includes('::collection::CollectionCap')
+  );
+
+  const cap = data.find((item: any) =>
+    item.objectType.includes('::collection::CollectionCap')
+  );
+
+  return {
+    collection,
+    cap,
+  };
 };
