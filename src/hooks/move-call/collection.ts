@@ -11,7 +11,10 @@ import {
 } from '@mysten/dapp-kit';
 import { Transaction } from '@mysten/sui/transactions';
 import { useState } from 'react';
-import { parseCreateCollectionResult } from '@/lib/collection';
+import {
+  parseAddItemTypeResult,
+  parseCreateCollectionResult,
+} from '@/lib/collection';
 import { SuiTransactionBlockResponse } from '@mysten/sui/dist/cjs/client';
 
 export function useCreateCollection() {
@@ -131,6 +134,7 @@ export function useCreateCollection() {
             collection,
             cap,
           });
+          setIsPending(false);
         },
         onError: (err: any) => {
           setError(err.message);
@@ -267,7 +271,8 @@ export function useUpdateCollection() {
         transaction: tx.serialize(),
       },
       {
-        onSuccess: (data: any) => {
+        onSuccess: () => {
+          setIsPending(false);
           setResult({
             description: description,
             img_url: img_url,
@@ -294,137 +299,146 @@ export function useUpdateCollection() {
   };
 }
 
-// export function useAddItemType() {
-//   const account = useCurrentAccount();
-//   const client = useSuiClient();
-//   const [isPending, setIsPending] = useState(false);
-//   const [error, setError] = useState<string | null>(null);
-//   const [result, setResult] = useState<{
-//     collection: string;
-//     cap: string;
-//   } | null>(null);
+export function useAddItemType() {
+  const account = useCurrentAccount();
+  const client = useSuiClient();
+  const [isPending, setIsPending] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [result, setResult] = useState<{
+    name: string;
+    address: string;
+    img_url: string;
+    layer: string;
+    description?: string;
+    attributes?: string;
+  } | null>(null);
 
-//   const { mutate: signAndExecuteTransaction } = useSignAndExecuteTransaction({
-//     execute: async ({ bytes, signature }) =>
-//       await client.executeTransactionBlock({
-//         transactionBlock: bytes,
-//         signature,
-//         options: {
-//           showRawEffects: true,
-//           showObjectChanges: true,
-//         },
-//       }),
-//   });
-//   const { COLLECTION } = MODULE;
+  const { mutate: signAndExecuteTransaction } = useSignAndExecuteTransaction({
+    execute: async ({ bytes, signature }) =>
+      await client.executeTransactionBlock({
+        transactionBlock: bytes,
+        signature,
+        options: {
+          showRawEffects: true,
+          showObjectChanges: true,
+        },
+      }),
+  });
+  const { COLLECTION } = MODULE;
 
-//   // const addItemType = ({
-//   //   col,
-//   //   cap,
-//   //   layer_type,
-//   //   name,
-//   //   imgUrl,
-//   //   description,
-//   //   attribute_type,
-//   // }: {
-//   //   name: string;
-//   //   imgUrl?: string;
-//   //   description?: string;
-//   //   layers?: string[];
-//   // }) => {
-//   //   setIsPending(true);
-//   //   setError(null);
-//   //   setResult(null);
+  const addItemType = ({
+    col,
+    cap,
+    layer,
+    name,
+    img_url,
+    description,
+    attributes,
+  }: {
+    col: string;
+    cap: string;
+    layer: string;
+    name: string;
+    img_url: string;
+    description?: string;
+    attributes?: {
+      name: string;
+      value: string;
+    }[];
+  }) => {
+    setIsPending(true);
+    setError(null);
+    setResult(null);
 
-//   //   if (!account) return;
+    if (!account) return;
 
-//   //   const tx = new Transaction();
-//   //   const [col, cap] = tx.moveCall({
-//   //     package: UPGRADED_PACKAGE_ID,
-//   //     module: COLLECTION,
-//   //     target: COLLECTION_MODULE_FUNCTIONS.new_collection,
-//   //     arguments: [tx.pure.string(name)],
-//   //   });
+    const tx = new Transaction();
 
-//   //   layers?.forEach((layer) => {
-//   //     tx.moveCall({
-//   //       package: UPGRADED_PACKAGE_ID,
-//   //       module: COLLECTION,
-//   //       target: COLLECTION_MODULE_FUNCTIONS.register_layer_type,
-//   //       arguments: [tx.object(col), tx.object(cap), tx.pure.string(layer)],
-//   //     });
-//   //   });
+    tx.moveCall({
+      package: UPGRADED_PACKAGE_ID,
+      module: COLLECTION,
+      target: COLLECTION_MODULE_FUNCTIONS.register_item_type,
+      arguments: [
+        tx.object(col),
+        tx.object(cap),
+        tx.pure.string(layer),
+        tx.pure.string(name),
+        tx.pure.string(img_url),
+      ],
+    });
 
-//   //   if (imgUrl) {
-//   //     tx.moveCall({
-//   //       package: UPGRADED_PACKAGE_ID,
-//   //       module: COLLECTION,
-//   //       target: COLLECTION_MODULE_FUNCTIONS.register_type_config,
-//   //       typeArguments: [COLLECTION_MODULE_STRUCTS.MembershipType],
-//   //       arguments: [
-//   //         tx.object(col),
-//   //         tx.object(cap),
-//   //         tx.pure.string(name),
-//   //         tx.pure.string('img_url'),
-//   //         tx.pure.string(imgUrl),
-//   //       ],
-//   //     });
-//   //   }
+    if (description) {
+      tx.moveCall({
+        package: UPGRADED_PACKAGE_ID,
+        module: COLLECTION,
+        target: COLLECTION_MODULE_FUNCTIONS.register_type_config,
+        typeArguments: [COLLECTION_MODULE_STRUCTS.ItemType],
+        arguments: [
+          tx.object(col),
+          tx.object(cap),
+          tx.pure.string(name),
+          tx.pure.string('description'),
+          tx.pure.string(description),
+        ],
+      });
+    }
 
-//   //   if (description) {
-//   //     tx.moveCall({
-//   //       package: UPGRADED_PACKAGE_ID,
-//   //       module: COLLECTION,
-//   //       target: COLLECTION_MODULE_FUNCTIONS.register_type_config,
-//   //       typeArguments: [COLLECTION_MODULE_STRUCTS.MembershipType],
-//   //       arguments: [
-//   //         tx.object(col),
-//   //         tx.object(cap),
-//   //         tx.pure.string(name),
-//   //         tx.pure.string('description'),
-//   //         tx.pure.string(description),
-//   //       ],
-//   //     });
-//   //   }
+    if (attributes) {
+      tx.moveCall({
+        package: UPGRADED_PACKAGE_ID,
+        module: COLLECTION,
+        target: COLLECTION_MODULE_FUNCTIONS.register_type_config,
+        typeArguments: [COLLECTION_MODULE_STRUCTS.ItemType],
+        arguments: [
+          tx.object(col),
+          tx.object(cap),
+          tx.pure.string(name),
+          tx.pure.string('attributes'),
+          tx.pure.string(
+            attributes
+              .map((attribute) => `${attribute.name}:${attribute.value}`)
+              .join(',')
+          ),
+        ],
+      });
+    }
 
-//   //   tx.moveCall({
-//   //     package: '0x2',
-//   //     module: 'transfer',
-//   //     function: 'public_share_object',
-//   //     typeArguments: [COLLECTION_MODULE_STRUCTS.Collection],
-//   //     arguments: [tx.object(col)],
-//   //   });
+    signAndExecuteTransaction(
+      {
+        transaction: tx.serialize(),
+      },
+      {
+        onSuccess: (res: SuiTransactionBlockResponse) => {
+          const { item_type } = parseAddItemTypeResult(res.objectChanges);
 
-//   //   tx.transferObjects([cap], tx.pure.address(account.address));
+          setResult({
+            name,
+            address: item_type.objectId,
+            img_url: img_url,
+            layer: layer,
+            description: description,
+            attributes: attributes
+              ? attributes
+                  .map((attribute) => `${attribute.name}:${attribute.value}`)
+                  .join(',')
+              : '',
+          });
+          setIsPending(false);
+        },
+        onError: (err: any) => {
+          setError(err.message);
+        },
+        onSettled: () => {
+          setIsPending(false);
+        },
+      }
+    );
+  };
 
-//   //   signAndExecuteTransaction(
-//   //     {
-//   //       transaction: tx.serialize(),
-//   //     },
-//   //     {
-//   //       onSuccess: (data: any) => {
-//   //         const { collection, cap } = parseCreateCollectionResult(
-//   //           data.objectChanges
-//   //         );
-
-//   //         setResult({
-//   //           collection,
-//   //           cap,
-//   //         });
-//   //       },
-//   //       onError: (err: any) => {
-//   //         setError(err.message);
-//   //       },
-//   //       onSettled: () => {
-//   //         setIsPending(false);
-//   //       },
-//   //     }
-//   //   );
-//   // };
-
-//   return {
-//     addItemType,
-//     isPending,
-//     error,
-//     result,
-//   };
-// }
+  return {
+    addItemType,
+    isPending,
+    error,
+    result,
+  };
+}

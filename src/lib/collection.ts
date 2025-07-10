@@ -1,14 +1,11 @@
 import type {
   CollectionSuiObjectData,
   Collection,
-  CollectionData,
-  FormattedCollection,
-  LayerType,
-  TypeConfig,
   FormattedTypeConfig,
+  FormattedItemContentsType,
+  FormattedItemType,
 } from '@/types/collection';
 import type { SuiDynamicFieldObjectData } from '@/types/sui';
-// import { StoreObjectData } from "@/types/store";
 import type { SuiObjectData } from '@mysten/sui/client';
 
 export const parseCollectionObjectData = (
@@ -31,7 +28,6 @@ export const parseCollectionObjectData = (
     },
   };
 
-  // console.log(collctionData);
   return collctionData;
 };
 
@@ -79,8 +75,6 @@ export const parseDynamicBaseTypeField = (
     },
   };
 
-  // console.log("dynamic", parsed);
-
   return parsed;
 };
 
@@ -99,10 +93,30 @@ const formatTicketType = (item: any): string => {
   return item.content.fields.name.fields.type_name;
 };
 
+const formatItemTypeContents = (item: any): FormattedItemContentsType => {
+  return {
+    type_name: item.content.fields.name.fields.type_name,
+    name: item.content.fields.name.fields.name,
+    [item.content.fields.name.fields.name]:
+      item.content.fields.value.fields.content,
+  };
+};
+
+const formatItemAttributes = (raw: string) => {
+  const attributes = raw.split(',');
+  return attributes.map((attribute) => {
+    const [name, value] = attribute.split(':');
+    return { name: name.trim(), value: parseInt(value.trim()) };
+  });
+};
+
 export const formatDynamicFields = (data: SuiDynamicFieldObjectData[]) => {
-  const configs = data
+  const base_configs = data
     .filter((item) => {
-      return item.content.type.includes('TypeConfig');
+      return (
+        item.content.type.includes('TypeConfig') &&
+        item.content.type.includes('MembershipType')
+      );
     })
     .reduce((acc, item) => {
       return { ...acc, ...formatTypeConfig(item) };
@@ -124,12 +138,49 @@ export const formatDynamicFields = (data: SuiDynamicFieldObjectData[]) => {
       return formatTicketType(item);
     });
 
+  const item_types = data
+    .filter((item) => {
+      return item.content.type.endsWith('::ItemType>');
+    })
+    .map((item: any) => {
+      return {
+        name: item.content.fields.name.fields.type_name,
+        layer: item.content.fields.value.fields.layer_type.fields.type_name,
+      } as FormattedItemType;
+    });
+
+  const item_configs = data
+    .filter((item) => {
+      return (
+        item.content.type.includes('TypeConfig') &&
+        item.content.type.includes('ItemType')
+      );
+    })
+    .map((item) => {
+      return formatItemTypeContents(item);
+    });
+
+  for (const item of item_types) {
+    for (const entry of item_configs) {
+      if (item.name === entry.type_name) {
+        for (const key in entry) {
+          if (key !== 'type_name' && key !== 'name') {
+            item[key as keyof typeof item] = entry[key as keyof typeof entry];
+          }
+        }
+      }
+    }
+  }
+
   return {
-    configs: configs,
+    configs: base_configs,
     attribute_types: attributes,
     ticket_types: ticketTypes,
+    item_types: item_types,
   };
 };
+
+// PARSE RESULT
 
 export const parseCreateCollectionResult = (data: any) => {
   const collection = data.find(
@@ -145,5 +196,15 @@ export const parseCreateCollectionResult = (data: any) => {
   return {
     collection,
     cap,
+  };
+};
+
+export const parseAddItemTypeResult = (data: any) => {
+  const item_type = data.find((item: any) =>
+    item.objectType.includes('::collection::ItemType')
+  );
+
+  return {
+    item_type,
   };
 };

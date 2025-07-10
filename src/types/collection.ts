@@ -84,14 +84,18 @@ export interface FormattedTypeConfig {
 }
 
 export interface FormattedItemType {
-  type: string;
+  name: string;
   collection_id: string;
   img_url: string;
-  layer_type: string;
+  layer: string;
   description?: string;
-  attributes?: Record<string, string>;
+  attributes?: { name: string; value: number }[] | string;
 }
 
+export interface FormattedItemContentsType {
+  name: string;
+  [key: string]: string;
+}
 export interface FormattedTicketType {
   type: string;
   fields: {
